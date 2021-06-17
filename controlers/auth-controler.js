@@ -34,4 +34,28 @@ const SignupUser = async (req, res, next) => {
     }
 }
 
+const LoginUser = async (req, res, next) => {
+    const {email, password} = req.body;
+      ///////////////////////////////////////////////// validation for input
+      const validationErrors = validationResult(req);
+      if(!validationErrors.isEmpty()){
+          const error = new HttpError(`Invalid input data, please check your data!`, 422);
+          return next(error);
+      }
+
+      // check credentials
+      const user = await User.findOne({email});
+      if(user && user.email === email) {
+          const passwordMatch = await bcrypt.compare(password, user.password);
+          console.log(passwordMatch)
+          if(passwordMatch) {
+            return res.json({message: "Login Success", user});
+          }
+      }
+      // if credentials dont match, throw error
+      const error = new HttpError("Invalid credentials!", 401);
+      return next(error);
+}
+
 module.exports.SignupUser = SignupUser;
+module.exports.LoginUser = LoginUser;
