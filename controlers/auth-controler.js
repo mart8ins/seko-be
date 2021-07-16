@@ -30,7 +30,7 @@ const SignupUser = async (req, res, next) => {
         await newUser.save();
         res.json({message: "Signup success", user: newUser});
     } catch(e){
-        console.log(e)
+        return next(new HttpError("Unexpected error during signup!", 500));
     }
 }
 

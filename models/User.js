@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
     firstName: {
         type: String,
         required: true
@@ -17,7 +18,50 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    photo: {
+        type: String
+    },
+    connections: {
+        connected: [
+            {
+                _id: false,
+                user: {type: Schema.Types.ObjectId, ref: "User"},
+                connectedDate: {type: String}
+            }
+        ],
+        requests: {
+            recieved: [
+                {
+                    _id: false,
+                    user: {type: Schema.Types.ObjectId, ref: "User"},
+                    date: {type: String},
+                    status: {type: String}
+                }
+            ],
+            sent: [
+                {
+                    _id: false,
+                    user: {type: Schema.Types.ObjectId, ref: "User"},
+                    date: {type: String},
+                    status: {type: String}
+                }
+            ]
+        }
+    },
+    messages: [
+        {
+            user: {type: Schema.Types.ObjectId, ref: "User"},
+            messages: [
+            {
+                text: {type: String},
+                isRead: {type: Boolean},
+                date: {type: String},
+                type: {type: String}
+            }
+            ]
+        }
+    ]
 })
 
 module.exports = mongoose.model("User", userSchema)
