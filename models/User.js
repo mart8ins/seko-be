@@ -26,7 +26,7 @@ const userSchema = new Schema({
         connected: [
             {
                 _id: false,
-                user: {type: Schema.Types.ObjectId, ref: "User"},
+                user: {type: String},
                 connectedDate: {type: String}
             }
         ],
@@ -34,7 +34,7 @@ const userSchema = new Schema({
             recieved: [
                 {
                     _id: false,
-                    user: {type: Schema.Types.ObjectId, ref: "User"},
+                    user: {type: String},
                     date: {type: String},
                     status: {type: String}
                 }
@@ -42,9 +42,9 @@ const userSchema = new Schema({
             sent: [
                 {
                     _id: false,
-                    user: {type: Schema.Types.ObjectId, ref: "User"},
+                    user: {type: String},
                     date: {type: String},
-                    status: {type: String}
+                    status: {type: String} // pending / ...
                 }
             ]
         }

@@ -2,6 +2,7 @@ const {validationResult} = require("express-validator");
 const HttpError = require("../errors/HttpError");
 const User = require("../models/User");
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 const saltRounds = 10;
 
 const SignupUser = async (req, res, next) => {
@@ -16,19 +17,25 @@ const SignupUser = async (req, res, next) => {
 
     ///////////////////////////////////////////////// to check if youser already exists if not, create it
     try {
-    const userExists = await User.findOne({email: email});
-    if(userExists){
-        const error = new HttpError("Email is Already Registered", 400);
-        return next(error);
-    }
-    const newUser = await new User({
-        firstName, 
-        lastName,
-        email,
-        password: await bcrypt.hash(password, saltRounds)
-    })
+        const userExists = await User.findOne({email: email});
+        if(userExists){
+            const error = new HttpError("Email is Already Registered", 400);
+            return next(error);
+        }
+        const newUser = await new User({
+            firstName, 
+            lastName,
+            email,
+            password: await bcrypt.hash(password, saltRounds)
+        })
         await newUser.save();
-        res.json({message: "Signup success", user: newUser});
+        let token;
+        token = jwt.sign(
+            {userId: newUser.id, email: newUser.email},
+            process.env.TOKEN_SECRET,
+            {expiresIn: "1h"}
+            )
+        res.json({message: "Signup success", userId: newUser.id, email: newUser.email, token: token});
     } catch(e){
         return next(new HttpError("Unexpected error during signup!", 500));
     }
@@ -47,9 +54,15 @@ const LoginUser = async (req, res, next) => {
       const user = await User.findOne({email});
       if(user && user.email === email) {
           const passwordMatch = await bcrypt.compare(password, user.password);
-          console.log(passwordMatch)
           if(passwordMatch) {
-            return res.json({message: "Login Success", user});
+
+            let token;
+            token = jwt.sign(
+            {userId: user.id, email: user.email},
+            process.env.TOKEN_SECRET,
+            {expiresIn: "1h"}
+            )
+            return res.json({message: "Login Success", userId: user.id, email: user.email, token: token});
           }
       }
       // if credentials dont match, throw error
