@@ -26,7 +26,9 @@ const userSchema = new Schema({
         connected: [
             {
                 _id: false,
-                user: {type: String},
+                firstName: {type: String},
+                lastName: {type: String},
+                userId: {type: String},
                 connectedDate: {type: String}
             }
         ],
@@ -34,7 +36,9 @@ const userSchema = new Schema({
             recieved: [
                 {
                     _id: false,
-                    user: {type: String},
+                    firstName: {type: String},
+                    lastName: {type: String},
+                    userId: {type: String},
                     date: {type: String},
                     status: {type: String}
                 }
@@ -42,7 +46,9 @@ const userSchema = new Schema({
             sent: [
                 {
                     _id: false,
-                    user: {type: String},
+                    firstName: {type: String},
+                    lastName: {type: String},
+                    userId: {type: String},
                     date: {type: String},
                     status: {type: String} // pending / ...
                 }
@@ -50,10 +56,18 @@ const userSchema = new Schema({
         }
     },
     messages: [
-        {
-            user: {type: Schema.Types.ObjectId, ref: "User"},
+        {   _id: false,
+            user: {
+                userId: {type: String},
+                firstName: {type: String},
+                lastName: {type: String},
+                isConnected: {type: Boolean},
+                photo: {type: String}
+            },
             messages: [
             {
+                _id: false,
+                id: {type: String},
                 text: {type: String},
                 isRead: {type: Boolean},
                 date: {type: String},
