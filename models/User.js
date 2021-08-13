@@ -61,7 +61,6 @@ const userSchema = new Schema({
                 userId: {type: String},
                 firstName: {type: String},
                 lastName: {type: String},
-                isConnected: {type: Boolean},
                 photo: {type: String}
             },
             messages: [

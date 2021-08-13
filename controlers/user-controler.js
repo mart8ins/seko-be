@@ -170,8 +170,6 @@ const acceptConnection = async(req,res,next)=> {
     }
 }
 
-
-
 const sendMessage = async(req,res, next)=> {
     try {
     // const {uid} = req.params; // explored user
@@ -179,7 +177,6 @@ const sendMessage = async(req,res, next)=> {
 
     // posted message body
     const messageBody = req.body.data;
-    // console.log(messageBody)
 
     // both users
     const exploredUser = await User.findOne({_id: messageBody.user.userId});
@@ -192,19 +189,18 @@ const sendMessage = async(req,res, next)=> {
     // destructing posted message body with user object and message body for storing in logged user data
     const {message, user} = messageBodyUpdate;
     const {userId} = user;
+
     // refactor for storing to explored users data
-    console.log(loggedUser, "logged user")
     const userRefactor = {
         userId: String(loggedUser._id),
         firstName: loggedUser.firstName,
         lastName: loggedUser.lastName,
-        isConnected: messageBody.user.isConnected,
-        photo: loggedUser.photo || "photo"
+        photo: loggedUser.photo || "https://images.unsplash.com/photo-1554526735-fca5ffabeb31?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
     }
-    console.log(userRefactor, "user refactor")
     const messageRefactor = {
         ...message,
-        type: "recieved"
+        type: "recieved",
+        isRead: false
     }
 
     // users messages array
@@ -243,9 +239,48 @@ const sendMessage = async(req,res, next)=> {
     }
         await loggedUser.save();
         await exploredUser.save();
-        res.json({message: "Message send success!"})
+        res.json({message: "Message send success!", details: {message: message}})
     } catch(e) {
         const error = new HttpError("Failed to send user message!", 400);
+        next(error);
+    }
+}
+
+const getMessages = async(req,res, next) => {
+    try {
+        const id = req.userData.userId; 
+        const user = await User.findOne({_id: id});
+        const messages = user.messages;
+        res.json({message: "Messages retrieved!", messages})
+    } catch(e) {
+        const error = new HttpError("Failed to get user messages.", 404);
+        next(error);
+    }
+}
+
+const setAllMessagesAsRead = async(req, res, next)=> {
+    try {
+        const {exploredUserId} = req.body;
+        const {userId} = req.userData; // logged user
+
+        // logged user all conversations/messages
+        const user = await User.findOne({_id: userId});
+        const userMessages = user.messages;
+
+        // conversation between logged user and explored user
+        const userConversation = userMessages.filter((conv) => {
+            return String(conv.user.userId) === String(exploredUserId);
+        })
+        // all messages between logged user and explored user
+        const userConversationMessges = userConversation[0].messages;
+        userConversationMessges.forEach((message)=> {
+            return message.isRead = true;
+        })
+        await user.save();
+
+        res.json({message: "Messages status set", updatedMessages: userConversationMessges})
+    } catch(e) {
+        const error = new HttpError("Failed to set all messages as readed", 400);
         next(error);
     }
 }
@@ -256,3 +291,5 @@ module.exports.getUsersConnections = getUsersConnections;
 module.exports.requestConnection = requestConnection;
 module.exports.acceptConnection = acceptConnection;
 module.exports.sendMessage = sendMessage;
+module.exports.getMessages = getMessages;
+module.exports.setAllMessagesAsRead = setAllMessagesAsRead;
