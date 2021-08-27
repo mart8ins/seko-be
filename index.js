@@ -1,7 +1,12 @@
 require('dotenv').config();
 
+
 const express = require("express");
 const app = express();
+const httpServer = require("http").createServer(app);
+
+global.io = require("socket.io")(httpServer, {cors: {origin: "*"}});
+
 const port = process.env.PORT || 3002;
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -20,23 +25,6 @@ app.use(session({
     cookie: { secure: true }
 }))
 
-
-// const dbUrl = "mongodb://localhost:27017/seko";
-// const secret = process.env.SECRET || 'supersecrets';
-// /* SESSION  */
-// const sessionOptions = {
-//     // name: "piektdiena",
-//     secret,
-//     resave: false,
-//     saveUninitialized: true,
-//     store: MongoStore.create({ secret, mongoUrl: dbUrl, touchAfter: 24 * 3600 }),
-//     cookie: { 
-//         httpOnly: true,
-//         expires: Date.now() + 1000 * 60 *60 *24*7,
-//         maxAge: 1000 * 60 * 60* 24 *7
-//      }
-//   }
-// app.use(session(sessionOptions));
 
 
 // setting response headers
@@ -70,7 +58,7 @@ app.use((error, req, res, next)=> {
 
 mongoose.connect('mongodb://localhost:27017/seko', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true,})
 .then( ()=> {
-    app.listen(port, ()=> {
+    httpServer.listen(port, ()=> {
         console.log("App startet on port " + port)
     })
 })

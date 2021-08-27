@@ -170,11 +170,22 @@ const acceptConnection = async(req,res,next)=> {
     }
 }
 
+// SEND MESSAGE TO USER
 const sendMessage = async(req,res, next)=> {
-    try {
-    // const {uid} = req.params; // explored user
-    const id = req.userData.userId; // logged user
 
+  
+
+    try {
+
+        // io.on("connection", (socket)=> {
+        //     socket.on("send message", (data)=> {
+        //         console.log(data);
+        //         socket.emit("send message", data)
+        //     })
+        // })
+
+
+    const id = req.userData.userId; // logged user
     // posted message body
     const messageBody = req.body.data;
 
@@ -246,18 +257,38 @@ const sendMessage = async(req,res, next)=> {
     }
 }
 
-const getMessages = async(req,res, next) => {
+// RETURN ALL CONVERSATIONS BETWEEN USERS
+const getAllConversations = async(req,res, next) => {
     try {
         const id = req.userData.userId; 
         const user = await User.findOne({_id: id});
-        const messages = user.messages;
-        res.json({message: "Messages retrieved!", messages})
+        const conversations = user.messages;
+        res.json({message: "Conversations retrieved!", conversations})
+    } catch(e) {
+        const error = new HttpError("Failed to get user conversations.", 404);
+        next(error);
+    }
+}
+
+// RETURN CONVERSATION FEED OF MESSAGES for logged user and explored user
+const getMessageFeed = async(req,res, next) => {
+    try {
+        const {userId} = req.query; // explored user
+        const id = req.userData.userId; // logged user
+        const user = await User.findOne({_id: id});
+        const userMessages = user.messages;
+
+        const userConversation = userMessages.filter((conv) => {
+             return String(conv.user.userId) === String(userId);
+        })
+        res.json({message: "Messages retrieved!", messages: userConversation[0].messages})
     } catch(e) {
         const error = new HttpError("Failed to get user messages.", 404);
         next(error);
     }
 }
 
+// SETS ALL UNREAD MESSAGE AS READ AND RETURN UPDATED CONVERSATION
 const setAllMessagesAsRead = async(req, res, next)=> {
     try {
         const {exploredUserId} = req.body;
@@ -272,13 +303,13 @@ const setAllMessagesAsRead = async(req, res, next)=> {
             return String(conv.user.userId) === String(exploredUserId);
         })
         // all messages between logged user and explored user
-        const userConversationMessges = userConversation[0].messages;
-        userConversationMessges.forEach((message)=> {
+        const userConversationMessages = userConversation[0].messages;
+        userConversationMessages.forEach((message)=> {
             return message.isRead = true;
         })
         await user.save();
 
-        res.json({message: "Messages status set", updatedMessages: userConversationMessges})
+        res.json({message: "Messages status set", updatedMessages: userConversationMessages})
     } catch(e) {
         const error = new HttpError("Failed to set all messages as readed", 400);
         next(error);
@@ -291,5 +322,6 @@ module.exports.getUsersConnections = getUsersConnections;
 module.exports.requestConnection = requestConnection;
 module.exports.acceptConnection = acceptConnection;
 module.exports.sendMessage = sendMessage;
-module.exports.getMessages = getMessages;
+module.exports.getAllConversations = getAllConversations;
 module.exports.setAllMessagesAsRead = setAllMessagesAsRead;
+module.exports.getMessageFeed = getMessageFeed;

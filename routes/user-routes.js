@@ -6,12 +6,14 @@ const { getAllNotConnectedUsers,
         requestConnection,
         acceptConnection,
         sendMessage,
-        getMessages,
+        getAllConversations,
+        getMessageFeed,
         setAllMessagesAsRead} = require("../controlers/user-controler");
 const {AuthCheck} = require("../middleware/auth-check");
 
 
-router.get("/messages", AuthCheck, getMessages); // get all users messages/conversations
+router.get("/messages/feed", AuthCheck, getMessageFeed); // get message feed for conversation
+router.get("/messages", AuthCheck, getAllConversations); // get all conversations for user
 router.get("/:uid", AuthCheck, getUser); // user
 router.get("/", AuthCheck, getAllNotConnectedUsers); // all not connected users
 router.get("/:uid/connections", AuthCheck, getUsersConnections); // user connections
