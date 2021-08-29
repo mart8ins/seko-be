@@ -4,8 +4,8 @@ require('dotenv').config();
 const express = require("express");
 const app = express();
 const httpServer = require("http").createServer(app);
-
 global.io = require("socket.io")(httpServer, {cors: {origin: "*"}});
+require("./socket")();
 
 const port = process.env.PORT || 3002;
 const mongoose = require("mongoose");
@@ -24,8 +24,6 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: true }
 }))
-
-
 
 // setting response headers
 app.use((req, res, next)=> {

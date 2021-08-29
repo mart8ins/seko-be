@@ -172,19 +172,7 @@ const acceptConnection = async(req,res,next)=> {
 
 // SEND MESSAGE TO USER
 const sendMessage = async(req,res, next)=> {
-
-  
-
     try {
-
-        // io.on("connection", (socket)=> {
-        //     socket.on("send message", (data)=> {
-        //         console.log(data);
-        //         socket.emit("send message", data)
-        //     })
-        // })
-
-
     const id = req.userData.userId; // logged user
     // posted message body
     const messageBody = req.body.data;
