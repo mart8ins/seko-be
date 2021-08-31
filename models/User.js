@@ -56,7 +56,9 @@ const userSchema = new Schema({
         }
     },
     messages: [
-        {   _id: false,
+        {   
+            _id: false,
+            id: {type: String},
             user: {
                 userId: {type: String},
                 firstName: {type: String},

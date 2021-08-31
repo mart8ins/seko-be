@@ -1,5 +1,6 @@
 const HttpError = require("../errors/HttpError");
 const User = require("../models/User");
+const { v4: uuidv4 } = require('uuid');
 
 // get all users who is not connected with logged user
 const getAllNotConnectedUsers = async (req, res, next) => {
@@ -173,6 +174,8 @@ const acceptConnection = async(req,res,next)=> {
 // SEND MESSAGE TO USER
 const sendMessage = async(req,res, next)=> {
     try {
+    const conversationId = uuidv4();
+
     const id = req.userData.userId; // logged user
     // posted message body
     const messageBody = req.body.data;
@@ -214,11 +217,13 @@ const sendMessage = async(req,res, next)=> {
     if(!isConversationStarted) {
         // for logged user
         userMessages.push({
+            id: conversationId,
             user,
             messages: [message]
         })
         // for explored user 
         exploredUserMessages.push({
+            id: conversationId,
             user: userRefactor,
             messages: [messageRefactor]
         })
