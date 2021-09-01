@@ -21,17 +21,16 @@ function socketIo(){
                 };
                 }
                 cb(users);
-                console.log(users, "kad ielogojas")
             });
         /* REMOVE USER FROM SOCKETID ARRAY */
         socket.on("USER IS OFFLINE", (user, cb)=> {
-                console.log(users, "pirms logouta")
+             
                 const userId = user.userId;
-                console.log(userId)
+              
                 const index = users.findIndex((user) => user.userId === userId);
-                console.log(index)
+             
                 users.splice(index, 1);
-                console.log(users, "pēc logouta")
+               
                 cb(users);
             })
 
@@ -42,7 +41,7 @@ function socketIo(){
 
         /* USER SEND MESSAGE */
         socket.on("SEND MESSAGE", ({exploredUserSocket, messageData})=> {
-            console.log("SEND MESSAGE UZ SOCKETU ", exploredUserSocket)
+           
             socket.emit("SEND MESSAGE", {socketId: socket.id, messageData: messageData});
         })
 

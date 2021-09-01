@@ -35,7 +35,7 @@ const SignupUser = async (req, res, next) => {
             process.env.TOKEN_SECRET,
             {expiresIn: "1h"}
             )
-        res.json({message: "Signup success", userId: newUser.id, email: newUser.email, token: token});
+        res.json({message: "Signup success", userId: newUser.id, email: newUser.email, token: token, fullName: `${newUser.firstName} ${newUser.lastName}`});
     } catch(e){
         return next(new HttpError("Unexpected error during signup!", 500));
     }
@@ -62,7 +62,7 @@ const LoginUser = async (req, res, next) => {
             process.env.TOKEN_SECRET,
             {expiresIn: "1h"}
             )
-            return res.json({message: "Login Success", userId: user.id, email: user.email, token: token});
+            return res.json({message: "Login Success", userId: user.id, email: user.email, token: token, fullName: `${user.firstName} ${user.lastName}`});
           }
       }
       // if credentials dont match, throw error
