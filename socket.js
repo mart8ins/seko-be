@@ -1,3 +1,4 @@
+const { Socket } = require("socket.io");
 const User = require("./models/User");
 
 // socket users
@@ -8,27 +9,64 @@ let uniqueRoom = "";
 
 function socketIo(){
     io.on("connection", (socket)=> {
-        console.log("User connected!!!");
-
+        console.log("User connected!!! with socket id ", socket.id);
+        /* ************************************************************************************************ */
         /* WHEN USER OPEN MESSAGES, STORE HIM IN USERS ARRAY WITH USERS ID AND SOCKET ID */
         socket.on("USER IS ONLINE", (user, cb)=> {
-                console.log("USER IS ONLINE")
-                newUser = {userId: user.userId, socketId: socket.id};
-                const userExists = users.some((user)=> user.userId === newUser.userId || user.socketId === newUser.socketId);
-                if(!userExists) {
+                if(user.userId) {
+                    newUser = {userId: String(user.userId), socketId: String(socket.id)};
+                    const userExists = users.some((user)=> user.userId === newUser.userId || user.socketId === newUser.socketId);
+                    if(!userExists) {
                     users.push(newUser);
                 };
+                }
                 cb(users);
-                console.log(users)
+                console.log(users, "kad ielogojas")
             });
         /* REMOVE USER FROM SOCKETID ARRAY */
         socket.on("USER IS OFFLINE", (user, cb)=> {
+                console.log(users, "pirms logouta")
                 const userId = user.userId;
+                console.log(userId)
                 const index = users.findIndex((user) => user.userId === userId);
+                console.log(index)
                 users.splice(index, 1);
+                console.log(users, "pēc logouta")
                 cb(users);
-                console.log(users)
             })
+
+        socket.on("GET USERS ONLINE", (cb)=> {
+            cb(users);
+        })
+        /* ****************************************************************************************************** */
+
+        /* USER SEND MESSAGE */
+        socket.on("SEND MESSAGE", ({exploredUserSocket, messageData})=> {
+            console.log("SEND MESSAGE UZ SOCKETU ", exploredUserSocket)
+            socket.emit("SEND MESSAGE", {socketId: socket.id, messageData: messageData});
+        })
+
+
+        /* GET MESSAGES */
+        socket.on("GET MESSAGES", async ({userId, exploredUserId},cb)=> {
+            const user = await User.findOne({_id: userId});
+            const userConversations = user.messages;
+            const conversationWith = userConversations.filter((conv) => {
+                    return String(conv.user.userId) === String(exploredUserId);
+                });
+            const messages = conversationWith[0].messages;
+            cb(messages);
+        })
+
+        socket.on("disconnect", (reason) => {
+            if (reason === "io server disconnect") {
+              // the disconnection was initiated by the server, you need to reconnect manually
+              socket.connect();
+            }
+            // else the socket will automatically try to reconnect
+          });
+
+        /* ******************************************************************************************************** */
     })
 }
 
