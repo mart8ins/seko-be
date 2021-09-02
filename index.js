@@ -34,10 +34,12 @@ app.use((req, res, next)=> {
 })
 
 const AuthRoutes = require("./routes/auth-routes");
-const UserRoutes = require("./routes/user-routes");
-app.use("/api/auth", AuthRoutes);
-app.use("/api/users", UserRoutes);
+const ConnectionsRoutes = require("./routes/connections-routes");
+const MessagesRoutes = require("./routes/messages-routes");
 
+app.use("/api/auth", AuthRoutes);
+app.use("/api", ConnectionsRoutes);
+app.use("/api", MessagesRoutes);
 
 
 // if no requested page is found, hits this response
