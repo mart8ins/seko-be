@@ -1,11 +1,14 @@
 const { Socket } = require("socket.io");
 const User = require("./models/User");
+const { v4: uuidv4 } = require('uuid');
 
 // socket users
 const users = [];
 let newUser;
-let newUserConversations = [];
-let uniqueRoom = "";
+
+let rooms = [];
+
+
 
 function socketIo(){
     io.on("connection", (socket)=> {
@@ -24,38 +27,62 @@ function socketIo(){
             });
         /* REMOVE USER FROM SOCKETID ARRAY */
         socket.on("USER IS OFFLINE", (user, cb)=> {
-             
                 const userId = user.userId;
-              
                 const index = users.findIndex((user) => user.userId === userId);
-             
                 users.splice(index, 1);
-               
                 cb(users);
             })
 
-        socket.on("GET USERS ONLINE", (cb)=> {
-            cb(users);
-        })
         /* ****************************************************************************************************** */
+        // selected user on frontend, for messages and join user in conversation room
+        socket.on("ACTIVE USER", async ({loggedUser, exploredUser}, cb)=> {
+            const foundUser = await User.findOne({_id: loggedUser});
+            const foundExploredUser = await User.findOne({_id: exploredUser})
+            let newUserConversations = foundUser.messages;
 
-        /* USER SEND MESSAGE */
-        socket.on("SEND MESSAGE", ({exploredUserSocket, messageData})=> {
-           
-            socket.emit("SEND MESSAGE", {socketId: socket.id, messageData: messageData});
+            // check if conversation exists already / conversationExists is []
+            const conversationExists = newUserConversations.filter((conversation) => {
+                return conversation.users.includes(loggedUser) && conversation.users.includes(exploredUser);
+            })
+            // if not exists then create it -  id, user [id,id], messages[]
+            if(conversationExists.length === 0) {
+                const createdConversation = {
+                    id: uuidv4(),
+                    messages: [],
+                    users: [loggedUser, exploredUser]
+                }
+                foundUser.messages.push(createdConversation);
+                foundExploredUser.messages.push(createdConversation);
+                await foundUser.save();
+                await foundExploredUser.save();
+                rooms.push(createdConversation);
+                socket.join(createdConversation.id);
+            } else {
+                const ex = rooms.some((conv)=> {
+                    return String(conv.id) === String(conversationExists[0].id);
+                })
+                if(!ex) {
+                    rooms.push(conversationExists[0])
+                }
+                socket.join(conversationExists[0].id);
+            }
+
+            // loop through rooms and return needed room, only if conversation already exists
+            const r = rooms.filter((room)=> {
+                return String(room.id) === String(conversationExists[0].id);
+            })
+            const mes = r[0].messages;
+            const ro = r[0].id;
+            cb(mes, ro);
+        })
+
+        socket.on("SEND MESSAGE", ({message, room})=> {
+            socket.to(room).emit("RECIEVE MESSAGE", message);
         })
 
 
-        /* GET MESSAGES */
-        socket.on("GET MESSAGES", async ({userId, exploredUserId},cb)=> {
-            const user = await User.findOne({_id: userId});
-            const userConversations = user.messages;
-            const conversationWith = userConversations.filter((conv) => {
-                    return String(conv.user.userId) === String(exploredUserId);
-                });
-            const messages = conversationWith[0].messages;
-            cb(messages);
-        })
+
+
 
         socket.on("disconnect", (reason) => {
             if (reason === "io server disconnect") {
@@ -64,7 +91,6 @@ function socketIo(){
             }
             // else the socket will automatically try to reconnect
           });
-
         /* ******************************************************************************************************** */
     })
 }
@@ -121,3 +147,24 @@ module.exports = socketIo;
         //      }
         //      socket.emit("conversation status", {status: s, count: c})
         // })
+
+        // {   
+//     _id: false,
+//     id: {type: String},
+//     user: {
+//         userId: {type: String},
+//         firstName: {type: String},
+//         lastName: {type: String},
+//         photo: {type: String}
+//     },
+//     messages: [
+//     {
+//         _id: false,
+//         id: {type: String},
+//         text: {type: String},
+//         isRead: {type: Boolean},
+//         date: {type: String},
+//         type: {type: String}
+//     }
+//     ]
+// }
