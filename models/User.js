@@ -62,26 +62,6 @@ const userSchema = new Schema({
             users: [],
             messages: []
         }
-        // {   
-        //     _id: false,
-        //     id: {type: String},
-        //     user: {
-        //         userId: {type: String},
-        //         firstName: {type: String},
-        //         lastName: {type: String},
-        //         photo: {type: String}
-        //     },
-        //     messages: [
-        //     {
-        //         _id: false,
-        //         id: {type: String},
-        //         text: {type: String},
-        //         isRead: {type: Boolean},
-        //         date: {type: String},
-        //         type: {type: String}
-        //     }
-        //     ]
-        // }
     ]
 })
 

@@ -5,76 +5,59 @@ const { v4: uuidv4 } = require('uuid');
 // SEND MESSAGE TO USER
 const sendMessage = async(req,res, next)=> {
     try {
-    const conversationId = uuidv4();
-
     const id = req.userData.userId; // logged user
     // posted message body
     const messageBody = req.body.data;
+    const messageText = messageBody.message.text;
+    const recieverId = messageBody.recieverId;
 
     // both users
-    const exploredUser = await User.findOne({_id: messageBody.user.userId});
     const loggedUser = await User.findOne({_id: id});
+    const exploredUser = await User.findOne({_id: recieverId});
 
-    // update message body with explored users photo
-    const messageBodyUpdate = {...messageBody};
-    messageBodyUpdate.user.photo = exploredUser.photo || "https://images.unsplash.com/photo-1554526735-fca5ffabeb31?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80";
+    // logged users conversations/messages in db
+    const loggedUsersMessages = loggedUser.messages;
+    const exploredUsersMessages = exploredUser.messages;
 
-    // destructing posted message body with user object and message body for storing in logged user data
-    const {message, user} = messageBodyUpdate;
-    const {userId} = user;
-
-    // refactor for storing to explored users data
-    const userRefactor = {
-        userId: String(loggedUser._id),
-        firstName: loggedUser.firstName,
-        lastName: loggedUser.lastName,
-        photo: loggedUser.photo || "https://images.unsplash.com/photo-1554526735-fca5ffabeb31?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
-    }
-    const messageRefactor = {
-        ...message,
-        type: "recieved",
-        isRead: false
-    }
-
-    // users messages array
-    const exploredUserMessages = exploredUser.messages;
-    const userMessages = loggedUser.messages;
-
-    // need to loop through and see if conversation between user already exists
-    const isConversationStarted = userMessages.some((user) => { 
-        return user.user.userId === userId;
+    // check if conversation between users exists
+    const conversationsExists = loggedUsersMessages.filter((conv)=> {
+        return conv.users.includes(String(id)) && conv.users.includes(String(recieverId))
     })
 
-    if(!isConversationStarted) {
-        // for logged user
-        userMessages.push({
-            id: conversationId,
-            user,
-            messages: [message]
-        })
-        // for explored user 
-        exploredUserMessages.push({
-            id: conversationId,
-            user: userRefactor,
-            messages: [messageRefactor]
-        })
-    } else {
-        // for logged user
-        userMessages.map((userMessages) => {
-            if(userMessages.user.userId === userId) {
-                return userMessages.messages.push(message);
+    // defined message object for every user
+    const messagesForSender = {
+                text: messageText,
+                sent: true
             }
-        })
-        // for explored user 
-        exploredUserMessages.map((userMessages)=> {
-            if(userMessages.user.userId === String(loggedUser._id)) {
-                return userMessages.messages.push(messageRefactor);
+        
+    const messagesForReciever = {
+                text: messageText,
+                sent: false
             }
-        })
-    }
+
+    if(conversationsExists.length === 0) {
+        // if there is no started conversation between users create it
+        const newConversations = {
+            id: uuidv4(),
+            users:[id, recieverId]
+        }
+        loggedUsersMessages.push({...newConversations, messages: [messagesForSender]});
+        exploredUsersMessages.push({...newConversations, messages: [messagesForReciever]});
         await loggedUser.save();
         await exploredUser.save();
-        res.json({message: "Message send success!", details: {message: message}})
+    } else {
+        // conversation already exists, so store only messages to both users 
+        conversationsExists[0].messages.push(messagesForSender) // loged user
+
+        // get explored users conversation object
+        const conversationForExploredUser = exploredUsersMessages.filter((conv)=> {
+            return conv.users.includes(String(id)) && conv.users.includes(String(recieverId))
+        });
+        conversationForExploredUser[0].messages.push(messagesForReciever);
+        await loggedUser.save();
+        await exploredUser.save();
+    }
+    res.json({message: "Message send success!"});
     } catch(e) {
         const error = new HttpError("Failed to send user message!", 400);
         next(error);
@@ -97,9 +80,7 @@ const getAllConversations = async(req,res, next) => {
 // RETURN CONVERSATION FEED OF MESSAGES for logged user and explored user
 const getMessageFeed = async(req,res, next) => {
     try {
-        
         const {userId} = req.query; // explored user
-        console.log(room, "rrooms")
         const id = req.userData.userId; // logged user
         const user = await User.findOne({_id: id});
         const userMessages = user.messages;
