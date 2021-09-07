@@ -97,7 +97,9 @@ const getAllConversations = async(req,res, next) => {
 // RETURN CONVERSATION FEED OF MESSAGES for logged user and explored user
 const getMessageFeed = async(req,res, next) => {
     try {
+        
         const {userId} = req.query; // explored user
+        console.log(room, "rrooms")
         const id = req.userData.userId; // logged user
         const user = await User.findOne({_id: id});
         const userMessages = user.messages;

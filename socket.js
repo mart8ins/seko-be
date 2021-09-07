@@ -2,11 +2,38 @@ const { Socket } = require("socket.io");
 const User = require("./models/User");
 const { v4: uuidv4 } = require('uuid');
 
-// socket users
+// socket users register
 const users = [];
 let newUser;
 
+// keep track of user rooms
 let rooms = [];
+
+const storeMessageDb = async (senderId, recieverId, message) => {
+    const messageSender = await User.findOne({_id: senderId});
+    const messageReciever = await User.findOne({_id: recieverId});
+
+    // UPDATE MONGO DB
+    // get existing chat room in both users messages array
+    const roomInMessageSender = messageSender.messages.filter((room)=> {
+        return String(room.id) === String(message.room);
+    });
+    const roomInMessageReciever = messageReciever.messages.filter((room)=> {
+        return String(room.id) === String(message.room);
+    });
+
+    roomInMessageSender[0].messages.push({
+        text: message.text,
+        sent: true
+    })
+    roomInMessageReciever[0].messages.push({
+        text: message.text,
+        sent: false
+    })
+
+    await messageSender.save();
+    await messageReciever.save();
+}
 
 
 
@@ -34,7 +61,7 @@ function socketIo(){
             })
 
         /* ****************************************************************************************************** */
-        // selected user on frontend, for messages and join user in conversation room
+        // selected user on frontend, for messages and create join user in conversation room
         socket.on("ACTIVE USER", async ({loggedUser, exploredUser}, cb)=> {
             const foundUser = await User.findOne({_id: loggedUser});
             const foundExploredUser = await User.findOne({_id: exploredUser})
@@ -44,45 +71,52 @@ function socketIo(){
             const conversationExists = newUserConversations.filter((conversation) => {
                 return conversation.users.includes(loggedUser) && conversation.users.includes(exploredUser);
             })
+
             // if not exists then create it -  id, user [id,id], messages[]
             if(conversationExists.length === 0) {
-                const createdConversation = {
-                    id: uuidv4(),
-                    messages: [],
-                    users: [loggedUser, exploredUser]
-                }
-                foundUser.messages.push(createdConversation);
-                foundExploredUser.messages.push(createdConversation);
-                await foundUser.save();
-                await foundExploredUser.save();
-                rooms.push(createdConversation);
-                socket.join(createdConversation.id);
+                    const createdConversation = {
+                        id: uuidv4(),
+                        messages: [],
+                        users: [loggedUser, exploredUser]
+                    }
+                    foundUser.messages.push(createdConversation);
+                    foundExploredUser.messages.push(createdConversation);
+                    await foundUser.save();
+                    await foundExploredUser.save();
+                    rooms.push(createdConversation);
+                    socket.join(createdConversation.id);
+                    cb(createdConversation.messages, createdConversation.id);
             } else {
-                const ex = rooms.some((conv)=> {
-                    return String(conv.id) === String(conversationExists[0].id);
-                })
-                if(!ex) {
-                    rooms.push(conversationExists[0])
-                }
-                socket.join(conversationExists[0].id);
-            }
+                    const ex = rooms.some((conv)=> {
+                        return String(conv.id) === String(conversationExists[0].id);
+                    })
+                    // if for some kind of reason room dosent exist in socket rooms, push it
+                    // else update that room with actual/updated messages from db
+                    if(!ex) {
+                        rooms.push(conversationExists[0]);
+                    } else {
+                        let index = rooms.findIndex((room)=> {
+                            return String(room.id) === String(conversationExists[0].id);
+                        })
+                        rooms[index].messages = conversationExists[0].messages;
 
-            // loop through rooms and return needed room, only if conversation already exists
-            const r = rooms.filter((room)=> {
-                return String(room.id) === String(conversationExists[0].id);
-            })
-            const mes = r[0].messages;
-            const ro = r[0].id;
-            cb(mes, ro);
+                    }
+                    socket.join(conversationExists[0].id);
+
+                    // loop through rooms and return needed room, messages
+                    const r = rooms.filter((room)=> {
+                        return String(room.id) === String(conversationExists[0].id);
+                    })
+                    const mes = r[0].messages; // messages
+                    const ro = r[0].id; // room
+                    cb(mes, ro);
+            }
         })
 
-        socket.on("SEND MESSAGE", ({message, room})=> {
+        socket.on("SEND MESSAGE", async ({message, room})=> {
+            await storeMessageDb(message.senderId, message.recieverId, {text: message.text, room: message.room});
             socket.to(room).emit("RECIEVE MESSAGE", message);
         })
-
-
-
-
 
         socket.on("disconnect", (reason) => {
             if (reason === "io server disconnect") {

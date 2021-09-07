@@ -12,7 +12,7 @@ router.get("/messages/feed", AuthCheck, getMessageFeed); // get message feed for
 router.get("/messages", AuthCheck, getAllConversations); // get all conversations for user
 
 router.post("/messages/new", AuthCheck, sendMessage); // send message to user
-router.post("/messages", AuthCheck, setAllMessagesAsRead); // send message to user
+router.post("/messages", AuthCheck, setAllMessagesAsRead); // set all message as read
 
 
 
