@@ -14,7 +14,6 @@ const session = require("express-session");
 const MongoStore = require('connect-mongo');
 const HttpError = require("./errors/HttpError");
 
-
 app.use(express.urlencoded({extended: true}), express.json());
 app.use(cors());
 app.use(session({
@@ -36,10 +35,12 @@ app.use((req, res, next)=> {
 const AuthRoutes = require("./routes/auth-routes");
 const ConnectionsRoutes = require("./routes/connections-routes");
 const MessagesRoutes = require("./routes/messages-routes");
+const ProfileRoutes = require("./routes/profile-routes");
 
 app.use("/api/auth", AuthRoutes);
 app.use("/api", ConnectionsRoutes);
 app.use("/api", MessagesRoutes);
+app.use("/api", ProfileRoutes);
 
 
 // if no requested page is found, hits this response
@@ -56,7 +57,7 @@ app.use((error, req, res, next)=> {
 })
 
 
-mongoose.connect('mongodb://localhost:27017/seko', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true,})
+mongoose.connect('mongodb://localhost:27017/seko', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false})
 .then( ()=> {
     httpServer.listen(port, ()=> {
         console.log("App startet on port " + port)
