@@ -62,7 +62,14 @@ const LoginUser = async (req, res, next) => {
             process.env.TOKEN_SECRET,
             {expiresIn: "1h"}
             )
-            return res.json({message: "Login Success", userId: user.id, email: user.email, token: token, fullName: `${user.firstName} ${user.lastName}`});
+            return res.json({
+                message: "Login Success", 
+                userId: user.id, 
+                email: user.email, 
+                token: token, 
+                fullName: `${user.firstName} ${user.lastName}`,
+                photo: user.photo.profile || undefined
+            });
           }
       }
       // if credentials dont match, throw error

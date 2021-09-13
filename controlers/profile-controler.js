@@ -46,5 +46,19 @@ const changeProfilePassword = async (req, res, next) => {
     }
 }
 
+const addProfilePhoto = async (req, res, next) => {
+    try {
+        const user = await User.findOne({_id: req.userData.userId});
+        user.photo.profile = req.file.path;
+        await user.save();
+        res.json({message: "User profile photo stored.", photo: user.photo.profile})
+    } catch (e) {
+        const error = new HttpError("Failed to store user profile photo.", 400);
+        next(error);
+    }
+   
+}
+
 module.exports.changeProfileData = changeProfileData;
 module.exports.changeProfilePassword = changeProfilePassword;
+module.exports.addProfilePhoto = addProfilePhoto;

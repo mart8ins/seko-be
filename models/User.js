@@ -20,7 +20,8 @@ const userSchema = new Schema({
         required: true
     },
     photo: {
-        type: String
+        profile: {type: String},
+        other: []
     },
     connections: {
         connected: [
