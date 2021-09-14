@@ -1,19 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { getAllNotConnectedUsers,
-        getUser,
-        getUsersConnections,
-        requestConnection,
-        acceptConnection } = require("../controlers/connections-controler");
+const { getAllUsers, sendRequestForConnection, acceptConnectionRequest } = require("../controlers/connections-controler");
 const {AuthCheck} = require("../middleware/auth-check");
 
 
-router.get("/:uid", AuthCheck, getUser); // user
-router.get("/", AuthCheck, getAllNotConnectedUsers); // all not connected users
-router.get("/:uid/connections", AuthCheck, getUsersConnections); // user connections
+router.get("/", AuthCheck, getAllUsers); // ALL USERS
 
-router.post("/:uid/connections/accept", AuthCheck, acceptConnection); // accept connection request
-router.post("/:uid/connections/request", AuthCheck, requestConnection); // send connection request
+router.post("/sendRequest", AuthCheck, sendRequestForConnection); // send request for connection
+router.post("/acceptRequest", AuthCheck, acceptConnectionRequest);
 
 
 module.exports = router;
+

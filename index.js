@@ -42,7 +42,7 @@ const MessagesRoutes = require("./routes/messages-routes");
 const ProfileRoutes = require("./routes/profile-routes");
 
 app.use("/api/auth", AuthRoutes);
-app.use("/api", ConnectionsRoutes);
+app.use("/api/connections", ConnectionsRoutes);
 app.use("/api", MessagesRoutes);
 app.use("/api", ProfileRoutes);
 
