@@ -110,11 +110,44 @@ const acceptConnectionRequest = async (req, res, next) => {
     }
 }
 
+const removeConnection = async (req, res, next) => {
+    try {
+        const {exploredUserId} = req.body;
+        const {userId} = req.userData;
+
+        const user = await User.findOne({_id: userId}).select("connections.connected");
+        const exploredUser = await User.findOne({_id: exploredUserId}).select("connections");
+
+        const userConnected = user.connections.connected;
+        const exploredUserConnected = exploredUser.connections.connected;
+
+        userConnected.forEach((user)=> {
+            if(user.userId === exploredUserId) {
+                userConnected.splice(userConnected.indexOf(user), 1);
+            }
+        })
+        exploredUserConnected.forEach((user)=> {
+            if(user.userId === userId) {
+                exploredUserConnected.splice(exploredUserConnected.indexOf(user), 1);
+            }
+        });
+        await user.save();
+        await exploredUser.save();
+
+        res.status(200);
+        res.json({message: "Connection removed!"})
+    } catch(e) {
+        const error = new HttpError("Failed to remove user from connections!", 400);
+        next(error);
+    }
+}
+
 
 module.exports.getAllUsers = getAllUsers;
 module.exports.sendRequestForConnection = sendRequestForConnection;
 module.exports.acceptConnectionRequest = acceptConnectionRequest;
 module.exports.getUser = getUser;
+module.exports.removeConnection = removeConnection;
 
 
 
