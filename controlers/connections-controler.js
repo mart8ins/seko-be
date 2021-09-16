@@ -16,6 +16,20 @@ const getAllUsers = async (req, res, next) => {
     }
 }
 
+// GET ONE USER
+const getUser = async (req, res, next) => {
+    try {
+        const {userId} = req.params;
+        const user = await User.findOne({_id: userId}).select("-password");
+    
+        res.status(200);
+        res.json({user})
+    } catch(e) {
+        const error = new HttpError("Fetching user data failed.", 404);
+        next(error);
+    }
+}
+
 // SEND REQUEST TO USER FOR CONNECTION
 const sendRequestForConnection = async (req, res, next) => {
     try {
@@ -100,6 +114,7 @@ const acceptConnectionRequest = async (req, res, next) => {
 module.exports.getAllUsers = getAllUsers;
 module.exports.sendRequestForConnection = sendRequestForConnection;
 module.exports.acceptConnectionRequest = acceptConnectionRequest;
+module.exports.getUser = getUser;
 
 
 

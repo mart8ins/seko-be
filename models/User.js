@@ -23,6 +23,9 @@ const userSchema = new Schema({
         profile: {type: String},
         other: []
     },
+    about: {
+        type: String
+    },
     connections: {
         connected: [
             {

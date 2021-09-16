@@ -68,7 +68,8 @@ const LoginUser = async (req, res, next) => {
                 email: user.email, 
                 token: token, 
                 fullName: `${user.firstName} ${user.lastName}`,
-                photo: user.photo.profile || undefined
+                photo: user.photo.profile || undefined,
+                about: user.about
             });
           }
       }

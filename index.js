@@ -44,7 +44,7 @@ const ProfileRoutes = require("./routes/profile-routes");
 app.use("/api/auth", AuthRoutes);
 app.use("/api/connections", ConnectionsRoutes);
 app.use("/api", MessagesRoutes);
-app.use("/api", ProfileRoutes);
+app.use("/api/profile", ProfileRoutes);
 
 
 // if no requested page is found, hits this response

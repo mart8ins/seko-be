@@ -56,9 +56,27 @@ const addProfilePhoto = async (req, res, next) => {
         const error = new HttpError("Failed to store user profile photo.", 400);
         next(error);
     }
-   
+}
+
+const changeAbout = async (req, res, next) => {
+    try {
+        const {userId} = req.userData;
+        const text = req.body.data;
+
+        let user = await User.findOneAndUpdate(
+            {_id: userId}, 
+            {about: text}, 
+            {new: true}
+        );
+        res.status(200);
+        res.json({message: "User update for 'about' success!"});
+    } catch(e) {
+        const error = new HttpError("Failed to add/change info about user", 400);
+        next(error);
+    }
 }
 
 module.exports.changeProfileData = changeProfileData;
 module.exports.changeProfilePassword = changeProfilePassword;
 module.exports.addProfilePhoto = addProfilePhoto;
+module.exports.changeAbout = changeAbout;
