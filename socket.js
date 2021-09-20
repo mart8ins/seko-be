@@ -15,6 +15,7 @@ const storeMessageDb = async (senderId, recieverId, message) => {
 
     // UPDATE MONGO DB
     // get existing chat room in both users messages array
+
     const roomInMessageSender = messageSender.messages.filter((room)=> {
         return String(room.id) === String(message.room);
     });

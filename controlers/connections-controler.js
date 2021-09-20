@@ -116,7 +116,7 @@ const removeConnection = async (req, res, next) => {
         const {userId} = req.userData;
 
         const user = await User.findOne({_id: userId}).select("connections.connected");
-        const exploredUser = await User.findOne({_id: exploredUserId}).select("connections");
+        const exploredUser = await User.findOne({_id: exploredUserId}).select("connections.connected");
 
         const userConnected = user.connections.connected;
         const exploredUserConnected = exploredUser.connections.connected;
