@@ -40,11 +40,13 @@ const AuthRoutes = require("./routes/auth-routes");
 const ConnectionsRoutes = require("./routes/connections-routes");
 const MessagesRoutes = require("./routes/messages-routes");
 const ProfileRoutes = require("./routes/profile-routes");
+const CreateRoutes = require("./routes/create-routes");
 
 app.use("/api/auth", AuthRoutes);
 app.use("/api/connections", ConnectionsRoutes);
 app.use("/api", MessagesRoutes);
 app.use("/api/profile", ProfileRoutes);
+app.use("/api/create", CreateRoutes);
 
 
 // if no requested page is found, hits this response
