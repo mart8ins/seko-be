@@ -31,7 +31,7 @@ const SignupUser = async (req, res, next) => {
         await newUser.save();
         let token;
         token = jwt.sign(
-            {userId: newUser.id, email: newUser.email},
+            {userId: newUser.id, email: newUser.email, firstName: newUser.firstName, lastName: newUser.lastName},
             process.env.TOKEN_SECRET,
             {expiresIn: "1h"}
             )
@@ -58,7 +58,7 @@ const LoginUser = async (req, res, next) => {
 
             let token;
             token = jwt.sign(
-            {userId: user.id, email: user.email},
+            {userId: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName},
             process.env.TOKEN_SECRET,
             {expiresIn: "1h"}
             )
