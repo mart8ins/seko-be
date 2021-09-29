@@ -12,7 +12,8 @@ const storySchema = new Schema({
         author: {
             userId: String,
             firstName: String,
-            lastName: String
+            lastName: String,
+            photo: String
         },
         comments: [{
             date: String,
@@ -22,7 +23,13 @@ const storySchema = new Schema({
                 lastName: String
             },
             comment: String
-        }]
+        }],
+        rating: [
+            {
+                raterId: String,
+                rate: Number
+            }
+        ]
 });
 
 module.exports = mongoose.model("Story", storySchema);
