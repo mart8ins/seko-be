@@ -30,13 +30,25 @@ const postStory = async (req, res, next) => {
     }
 }
 
-// GET ALL USER STORIES
-const getUserStories = async (req, res ,next) => {
+// GET ALL STORIES
+const getAllStories = async (req, res ,next) => {
     try {
         const stories = await Story.find({});
         res.json({message: "Success getting all stories from db.", stories})
     }catch(e) {
         const error = new HttpError("Couldnt get all stories!", 400);
+        next(error);
+    }
+}
+
+// GET ALL STORIES FOR USER
+const getAllUserStories = async (req, res ,next) => {
+    try {
+        const {userId} = req.params;
+        const stories = await Story.find({"author.userId": userId});
+        res.json({message: "Success getting all stories for user", stories})
+    }catch(e) {
+        const error = new HttpError("Couldnt get stories for user!", 400);
         next(error);
     }
 }
@@ -56,5 +68,6 @@ const getUserStory = async (req, res ,next) => {
 
 
 module.exports.postStory = postStory;
-module.exports.getUserStories = getUserStories;
+module.exports.getAllStories = getAllStories;
 module.exports.getUserStory = getUserStory;
+module.exports.getAllUserStories = getAllUserStories;
