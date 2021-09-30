@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Story = require("../models/Story");
 const HttpError = require("../errors/HttpError");
+const fs = require("fs");
 
 
 // POST A STORY
@@ -54,6 +55,21 @@ const rateStory = async (req, res, next) => {
     }
 }
 
+const deleteStory = async (req, res, next) => {
+    const {storyId} = req.body;
+    try {
+        const storyToDelete = await Story.findOneAndDelete({_id: storyId});
+        const imagePathToDelete = storyToDelete.image;
+        // delete story background image after story is deleted
+        fs.unlinkSync(imagePathToDelete);
+
+        res.json({message: "Success on deleteing story"});
+    } catch(e) {
+        const error = new HttpError("Problem with deleteing story. Try again.", 400);
+        next(error);
+    }
+}
+
 // GET ALL STORIES
 const getAllStories = async (req, res ,next) => {
     try {
@@ -96,3 +112,4 @@ module.exports.getAllStories = getAllStories;
 module.exports.getUserStory = getUserStory;
 module.exports.getAllUserStories = getAllUserStories;
 module.exports.rateStory = rateStory;
+module.exports.deleteStory = deleteStory;
