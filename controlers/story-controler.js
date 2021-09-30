@@ -30,6 +30,30 @@ const postStory = async (req, res, next) => {
     }
 }
 
+// POST A RATE FOR STORY
+const rateStory = async (req, res, next) => {
+    const {storyId, rate} = req.body;
+    const {userId} = req.userData;
+    try {
+        const story = await Story.findOne({_id: storyId});
+        const alreadyRated = story.rating.some((r)=> {
+            return r.raterId === userId;
+        })
+        if(!alreadyRated) {
+            story.rating.push({
+                raterId: userId,
+                rate: rate
+            })
+        }
+        await story.save();
+        
+        res.json({message: "Success on rating a story!"})
+    } catch(e) {
+        const error = new HttpError("Failed to rate a story.", 400);
+        next(error);
+    }
+}
+
 // GET ALL STORIES
 const getAllStories = async (req, res ,next) => {
     try {
@@ -71,3 +95,4 @@ module.exports.postStory = postStory;
 module.exports.getAllStories = getAllStories;
 module.exports.getUserStory = getUserStory;
 module.exports.getAllUserStories = getAllUserStories;
+module.exports.rateStory = rateStory;

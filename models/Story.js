@@ -16,6 +16,7 @@ const storySchema = new Schema({
             photo: String
         },
         comments: [{
+            _id: false,
             date: String,
             author: {
                 userId: String,
@@ -25,7 +26,8 @@ const storySchema = new Schema({
             comment: String
         }],
         rating: [
-            {
+            {   
+                _id: false,
                 raterId: String,
                 rate: Number
             }
