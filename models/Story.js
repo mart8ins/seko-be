@@ -20,8 +20,7 @@ const storySchema = new Schema({
             date: String,
             author: {
                 userId: String,
-                firstName: String,
-                lastName: String
+                fullName: String
             },
             comment: String
         }],

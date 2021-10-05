@@ -86,6 +86,7 @@ const rateStory = async (req, res, next) => {
     }
 }
 
+// DELETE STORY
 const deleteStory = async (req, res, next) => {
     const {storyId} = req.body;
     try {
@@ -136,6 +137,27 @@ const getUserStory = async (req, res ,next) => {
     }
 }
 
+// POST A COMMENT FOR STORY
+const postCommentForStory = async (req, res ,next) => {
+    try {
+        const {comment, fullName, userId, commented_story} = req.body.comment;
+        const story = await Story.findOne({_id: commented_story});
+        story.comments.push({
+            author: {
+                fullName,
+                userId
+            },
+            comment,
+            date: new Date()
+        });
+        await story.save();
+        res.json({message: "Success on posting a comment for story."})
+    }catch(e) {
+        const error = new HttpError("Failed to post comment for story.", 400);
+        next(error);
+    }
+
+}
 
 
 module.exports.postStory = postStory;
@@ -144,3 +166,4 @@ module.exports.getUserStory = getUserStory;
 module.exports.getAllUserStories = getAllUserStories;
 module.exports.rateStory = rateStory;
 module.exports.deleteStory = deleteStory;
+module.exports.postCommentForStory = postCommentForStory;
