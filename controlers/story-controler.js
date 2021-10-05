@@ -4,31 +4,62 @@ const HttpError = require("../errors/HttpError");
 const fs = require("fs");
 
 
-// POST A STORY
+// POST A STORY or edit if needed
 const postStory = async (req, res, next) => {
-    const {userId, firstName, lastName} = req.userData;
-    const user = await User.findOne({_id: userId}).select("-password");
-    try {
-        const newStory = new Story({
-            title: req.body.title,
-            story: req.body.story,
-            image: req.file && req.file.path || undefined,
-            comments_allowed: req.body.comments_allowed,
-            private: req.body.private,
-            author: {
-                userId: userId,
-                firstName: firstName,
-                lastName: lastName,
-                photo: user.photo.profile
-            },
-            date: new Date()
-        })
-        await newStory.save();
-        res.json({message: "Success on posting a story!"})
-    } catch(e) {
-        const error = new HttpError("Failed to post story.", 400);
-        next(error);
+    if(!req.body.edit_story) {
+        try {
+            const {userId, firstName, lastName} = req.userData;
+            const user = await User.findOne({_id: userId}).select("-password");
+            const newStory = new Story({
+                title: req.body.title,
+                story: req.body.story,
+                image: req.file && req.file.path || undefined,
+                comments_allowed: req.body.comments_allowed,
+                private: req.body.private,
+                author: {
+                    userId: userId,
+                    firstName: firstName,
+                    lastName: lastName,
+                    photo: user.photo.profile
+                },
+                date: new Date()
+            })
+            await newStory.save();
+            res.json({message: "Success on posting a story!"})
+        } catch(e) {
+            const error = new HttpError("Failed to post story.", 400);
+            next(error);
+        }
     }
+
+    if(req.body.edit_story) {
+        try {
+            const {userId, firstName, lastName} = req.userData;
+            const storyToEdit = await Story.findOne({_id: req.body.edit_story});
+            const user = await User.findOne({_id: userId}).select("-password");
+            storyToEdit.title = req.body.title;
+            storyToEdit.story = req.body.story;
+            if(req.file && req.file.path) {
+                fs.unlinkSync(storyToEdit.image);
+                storyToEdit.image =  req.file.path;
+            }
+            storyToEdit.comments_allowed = req.body.comments_allowed;
+            storyToEdit.private = req.body.private;
+            storyToEdit.author = {
+                    userId: userId,
+                    firstName: firstName,
+                    lastName: lastName,
+                    photo: user.photo.profile
+                };
+            storyToEdit.date = new Date();
+            await storyToEdit.save();
+            res.json({message: "Success on editing a story!"})
+        } catch(e) {
+            const error = new HttpError("Failed to edit story.", 400);
+            next(error);
+        }
+    }
+    
 }
 
 // POST A RATE FOR STORY
