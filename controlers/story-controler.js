@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Story = require("../models/Story");
 const HttpError = require("../errors/HttpError");
 const fs = require("fs");
+const getStorieStats = require("../helpers/stories/getStorieStats");
 
 
 // POST A STORY or edit if needed
@@ -118,7 +119,11 @@ const getAllUserStories = async (req, res ,next) => {
     try {
         const {userId} = req.params;
         const stories = await Story.find({"author.userId": userId});
-        res.json({message: "Success getting all stories for user", stories})
+
+        // SET STATS FOR STORIES
+        let stats = getStorieStats(stories);
+
+        res.json({message: "Success getting all stories for user", stories, stats})
     }catch(e) {
         const error = new HttpError("Couldnt get stories for user!", 400);
         next(error);
@@ -127,9 +132,18 @@ const getAllUserStories = async (req, res ,next) => {
 
 // GET STORY BY ID
 const getUserStory = async (req, res ,next) => {
+    const {userId} = req.userData;
     const {storyId} = req.params;
     try {
         const story = await Story.findOne({_id: storyId});
+        if(userId !== story.author.userId) {
+            if(story.viewed_times) {
+                story.viewed_times = story.viewed_times + 1;
+            } else {
+                story.viewed_times = 1;
+            }
+            story.save();
+        }
         res.json({message: "Success getting user story from db.", story})
     }catch(e) {
         const error = new HttpError("Couldnt get a story!", 400);
@@ -156,7 +170,6 @@ const postCommentForStory = async (req, res ,next) => {
         const error = new HttpError("Failed to post comment for story.", 400);
         next(error);
     }
-
 }
 
 

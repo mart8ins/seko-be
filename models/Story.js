@@ -30,7 +30,8 @@ const storySchema = new Schema({
                 raterId: String,
                 rate: Number
             }
-        ]
+        ],
+        viewed_times: Number
 });
 
 module.exports = mongoose.model("Story", storySchema);
