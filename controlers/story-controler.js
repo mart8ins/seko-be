@@ -38,10 +38,13 @@ const postStory = async (req, res, next) => {
             const {userId, firstName, lastName} = req.userData;
             const storyToEdit = await Story.findOne({_id: req.body.edit_story});
             const user = await User.findOne({_id: userId}).select("-password");
+
             storyToEdit.title = req.body.title;
             storyToEdit.story = req.body.story;
             if(req.file && req.file.path) {
-                fs.unlinkSync(storyToEdit.image);
+                if(req.body.image_to_delete) {
+                    fs.unlinkSync(req.body.image_to_delete); // to delete old image from server if user chose new
+                }
                 storyToEdit.image =  req.file.path;
             }
             storyToEdit.comments_allowed = req.body.comments_allowed;
@@ -60,7 +63,6 @@ const postStory = async (req, res, next) => {
             next(error);
         }
     }
-    
 }
 
 // POST A RATE FOR STORY
