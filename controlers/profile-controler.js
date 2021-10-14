@@ -48,6 +48,7 @@ const changeProfilePassword = async (req, res, next) => {
 }
 
 const addProfilePhoto = async (req, res, next) => {
+    console.log(req.file)
     try {
         const user = await User.findOne({_id: req.userData.userId});
 
@@ -56,7 +57,10 @@ const addProfilePhoto = async (req, res, next) => {
             fs.unlinkSync(user.photo.profile);
         }
 
-        user.photo.profile = req.file.path;
+        if(req.file && req.file.path) {
+            user.photo.profile = req.file.path;
+        }
+        
         await user.save();
         res.json({message: "User profile photo stored.", photo: user.photo.profile})
     } catch (e) {
