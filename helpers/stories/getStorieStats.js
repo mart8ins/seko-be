@@ -3,8 +3,8 @@ module.exports = getStorieStats = (stories) => {
     let avarage_rate = 0;
     let stories_commented = 0;
     let stories_viewed = 0;
-    let best_rated = "";
-    let most_commented = "";
+    let best_rated = undefined;
+    let most_commented = undefined;
 
     let allAvarageRatesForStories = []; // ALL AVARAGES FOR STORY RATINGS, TO GET TOTAL AVARAGE FOR ALL STORIES
     let storyAvarageRate = 0; // FOR TO TRACK STORY WITH BEST AVARAGE RATING, TO HELP GET ITS TITLE
@@ -50,12 +50,38 @@ module.exports = getStorieStats = (stories) => {
         avarage_rate = (allAvarageRatesForStories.reduce((prev, next)=> { return prev + next }) / allAvarageRatesForStories.length).toFixed(1);
     } 
 
-    return {
-        posted_stories,
-        avarage_rate,
-        stories_viewed,
-        stories_commented,
-        best_rated,
-        most_commented
-    }
+    const final = [
+        {
+            title: "Posted stories",
+            stat: posted_stories,
+            default: 0
+        },
+        {
+            title: "Avarage rate for stories",
+            stat: avarage_rate,
+            default: 0
+        },
+        {
+            title: "Stories viewed, times",
+            stat: stories_viewed,
+            default: 0
+        },
+        {
+            title: "Stories commented, times",
+            stat: stories_commented,
+            default: 0
+        },
+        {
+            title: "Best rated story",
+            stat: best_rated,
+            default: "No rated stories"
+        },
+        {
+            title: "Most commented story",
+            stat: most_commented,
+            default: "No comments recieved"
+        }
+    ]
+
+    return final;
 }
