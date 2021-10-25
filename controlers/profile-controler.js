@@ -48,7 +48,6 @@ const changeProfilePassword = async (req, res, next) => {
 }
 
 const addProfilePhoto = async (req, res, next) => {
-    console.log(req.file)
     try {
         const user = await User.findOne({_id: req.userData.userId});
 
