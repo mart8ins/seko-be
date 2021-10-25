@@ -41,12 +41,14 @@ const ConnectionsRoutes = require("./routes/connections-routes");
 const MessagesRoutes = require("./routes/messages-routes");
 const ProfileRoutes = require("./routes/profile-routes");
 const StoryRoutes = require("./routes/story-routes");
+const WorkoutRoutes = require("./routes/workout-routes");
 
 app.use("/api/auth", AuthRoutes);
 app.use("/api/connections", ConnectionsRoutes);
 app.use("/api", MessagesRoutes);
 app.use("/api/profile", ProfileRoutes);
 app.use("/api/story", StoryRoutes);
+app.use("/api/workout", WorkoutRoutes);
 
 
 // if no requested page is found, hits this response
