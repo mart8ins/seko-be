@@ -1,15 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const {AuthCheck} = require("../middleware/auth-check");
-const {saveTrainingSession, getAllTrainingSessions, getAllUserTrainingSessions} = require("../controlers/workout-controler");
+const {saveTrainingSession, getAllTrainingDays, getAllUserTrainingDays, getTrainingDay, deleteTrainingDay} = require("../controlers/workout-controler");
 
-// GET ALL TRAINING SESSIONS
-router.get("/sessions", AuthCheck, getAllTrainingSessions);
+// GET ALL TRAINING days
+router.get("/all", AuthCheck, getAllTrainingDays);
 
-// GET ALL USERS SESSIONS
-router.get("/sessions/:userId", AuthCheck, getAllUserTrainingSessions);
+// GET ALL USERS days
+router.get("/:userId", AuthCheck, getAllUserTrainingDays);
 
-// SAVE NEW TRAINING DAY/SESSION
+// GET TRAINING DAY
+router.get("/trainingday/:trainingDayId", AuthCheck, getTrainingDay);
+
+router.post("/trainingday/delete", AuthCheck, deleteTrainingDay);
+
+// SAVE NEW TRAINING SESSION
 router.post("/new", AuthCheck, saveTrainingSession);
 
 module.exports = router;

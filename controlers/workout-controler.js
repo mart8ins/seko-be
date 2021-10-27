@@ -46,29 +46,55 @@ const saveTrainingSession = async (req, res, next) => {
     }
 }
 
-const getAllTrainingSessions = async(req, res, next) => {
+const getAllTrainingDays = async(req, res, next) => {
     try {
         const trainingSessions = await Workout.find({});
-        res.json({message: "Success on getting training sessions!", trainingSessions})
+        res.json({message: "Success on getting training days!", trainingSessions})
     }catch(e) {
-        const error = new HttpError("Failed to get training sessions!");
+        const error = new HttpError("Failed to get training days!");
         next(error);
     }
     
 }
 
-const getAllUserTrainingSessions = async (req, res, next) => {
+const getAllUserTrainingDays = async (req, res, next) => {
     try {
         const {userId} = req.params;
         const userTrainingSessions = await Workout.find({userId: userId});
 
-        res.json({message: "Success on getting all user training sessions!", userTrainingSessions})
+        res.json({message: "Success on getting all user training days!", userTrainingSessions})
     }catch(e) {
-        const error = new HttpError("Failed to get user training sessions!");
+        const error = new HttpError("Failed to get user training days!");
         next(error);
     }
 }
 
+const getTrainingDay = async (req, res, next) => {
+    try {
+        const {trainingDayId} = req.params;
+        const day = await Workout.findOne({_id: trainingDayId});
+        res.json({message: "Success on getting training day!", day})
+    }catch(e) {
+        const error = new HttpError("Failed to get training day!");
+        next(error);
+    }
+}
+
+const deleteTrainingDay = async (req, res, next) => {
+    try {
+        const {trainingDayId} = req.body;
+        const dayToDelete = await Workout.findOneAndDelete({_id: trainingDayId});
+
+        res.json({message: "Success on deleting training day!"});
+    } catch(e) {
+        const error = new HttpError("Failed to delete training day", 400);
+        next(error);
+    }
+
+}
+
 module.exports.saveTrainingSession = saveTrainingSession;
-module.exports.getAllTrainingSessions = getAllTrainingSessions;
-module.exports.getAllUserTrainingSessions = getAllUserTrainingSessions;
+module.exports.getAllTrainingDays = getAllTrainingDays;
+module.exports.getAllUserTrainingDays = getAllUserTrainingDays;
+module.exports.getTrainingDay = getTrainingDay;
+module.exports.deleteTrainingDay = deleteTrainingDay;

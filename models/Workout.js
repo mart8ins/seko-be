@@ -25,6 +25,7 @@ const trainingDaySchema = new Schema({
                     _id: false,
                     name: {type: String, required: true},
                     imageName: {type: String, required: true},
+                    wID: {type: String, required: true},
                     sets: [
                         {
                             _id: false,
