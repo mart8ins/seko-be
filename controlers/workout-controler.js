@@ -1,5 +1,6 @@
 const HttpError = require("../errors/HttpError");
 const Workout = require("../models/Workout");
+const getWorkoutStats = require("../helpers/stories/getWorkoutStats");
 
 
 const saveTrainingSession = async (req, res, next) => {
@@ -62,7 +63,9 @@ const getAllUserTrainingDays = async (req, res, next) => {
         const {userId} = req.params;
         const userTrainingSessions = await Workout.find({userId: userId});
 
-        res.json({message: "Success on getting all user training days!", userTrainingSessions})
+        const stats = await getWorkoutStats(userTrainingSessions);
+
+        res.json({message: "Success on getting all user training days!", userTrainingSessions, stats})
     }catch(e) {
         const error = new HttpError("Failed to get user training days!");
         next(error);
