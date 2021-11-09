@@ -4,7 +4,9 @@ module.exports = getStorieStats = (stories) => {
     let stories_commented = 0;
     let stories_viewed = 0;
     let best_rated = undefined;
+    let best_rated_id = undefined;
     let most_commented = undefined;
+    let most_commented_id = undefined;
 
     let allAvarageRatesForStories = []; // ALL AVARAGES FOR STORY RATINGS, TO GET TOTAL AVARAGE FOR ALL STORIES
     let storyAvarageRate = 0; // FOR TO TRACK STORY WITH BEST AVARAGE RATING, TO HELP GET ITS TITLE
@@ -34,6 +36,7 @@ module.exports = getStorieStats = (stories) => {
         if(storyAvarageRate < rateResult) {
             storyAvarageRate = rateResult;
             best_rated = story.title;
+            best_rated_id = String(story._id);
         }
 
         /* STORIES COMMENTED N TIMES */
@@ -43,6 +46,7 @@ module.exports = getStorieStats = (stories) => {
         if(mostCommentedStoryTrack < story.comments.length) {
             mostCommentedStoryTrack = story.comments.length;
             most_commented = story.title;
+            most_commented_id = String(story._id);
         }
     })
     /* AVARAGE RATE FINISH */
@@ -54,31 +58,39 @@ module.exports = getStorieStats = (stories) => {
         {
             title: "Posted stories",
             stat: posted_stories,
-            default: 0
+            default: 0,
+            asLink: false
         },
         {
             title: "Avarage rate for stories",
             stat: avarage_rate,
-            default: 0
+            default: 0,
+            asLink: false
         },
         {
             title: "Stories viewed, times",
             stat: stories_viewed,
-            default: 0
+            default: 0,
+            asLink: false
         },
         {
             title: "Stories commented, times",
             stat: stories_commented,
-            default: 0
+            default: 0,
+            asLink: false
         },
         {
             title: "Best rated story",
             stat: best_rated,
+            storyId: best_rated_id,
+            asLink: true,
             default: "No rated stories"
         },
         {
             title: "Most commented story",
             stat: most_commented,
+            storyId: most_commented_id,
+            asLink: true,
             default: "No comments recieved"
         }
     ]
