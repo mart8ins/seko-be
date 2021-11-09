@@ -6,6 +6,7 @@ module.exports = getWorkoutStats = (trainingDays) => {
 
     const mostUsedWorkouts = [];
     let mostPopularWorkoutName = "";
+    let mostPopularWorkoutID;
 
     // basic count data
     trainingDays.forEach((day)=> {
@@ -21,6 +22,7 @@ module.exports = getWorkoutStats = (trainingDays) => {
                 if(!workIndex || workIndex === -1) {
                     mostUsedWorkouts.push({
                         name: workout.name,
+                        wID: workout.wID,
                         count: 1
                     })
                 } else {
@@ -36,6 +38,7 @@ module.exports = getWorkoutStats = (trainingDays) => {
         if(wTrackNumber < workout.count) {
             wTrackNumber = workout.count
             mostPopularWorkoutName = workout.name
+            mostPopularWorkoutID = workout.wID
         }
     });
     
@@ -44,22 +47,27 @@ module.exports = getWorkoutStats = (trainingDays) => {
         {
             title: "Training days",
             stat: training_days,
-            default: 0
+            default: 0,
+            asLink: false
         },
         {
             title: "Total sessions",
             stat: sessions_count,
-            default: 0
+            default: 0,
+            asLink: false
         },
         {
             title: "Total workouts",
             stat: workout_count,
-            default: 0
+            default: 0,
+            asLink: false
         },
         {
             title: "Most trained workout",
             stat: mostPopularWorkoutName,
-            default: "No data"
+            wID: mostPopularWorkoutID,
+            default: "No data",
+            asLink: true
         }
     ]
 
