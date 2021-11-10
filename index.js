@@ -42,6 +42,7 @@ const MessagesRoutes = require("./routes/messages-routes");
 const ProfileRoutes = require("./routes/profile-routes");
 const StoryRoutes = require("./routes/story-routes");
 const WorkoutRoutes = require("./routes/workout-routes");
+const ContentFeedRoutes = require("./routes/contentFeed-routes");
 
 app.use("/api/auth", AuthRoutes);
 app.use("/api/connections", ConnectionsRoutes);
@@ -49,6 +50,7 @@ app.use("/api", MessagesRoutes);
 app.use("/api/profile", ProfileRoutes);
 app.use("/api/story", StoryRoutes);
 app.use("/api/workout", WorkoutRoutes);
+app.use("/api/contentFeed", ContentFeedRoutes);
 
 
 // if no requested page is found, hits this response

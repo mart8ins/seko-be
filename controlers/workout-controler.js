@@ -1,17 +1,22 @@
 const HttpError = require("../errors/HttpError");
 const Workout = require("../models/Workout");
+const ContentFeed = require("../models/ContentFeed");
 const getWorkoutStats = require("../helpers/stories/getWorkoutStats");
 
 
 const saveTrainingSession = async (req, res, next) => {
     try {
-        const {userId} = req.userData;
+        const {userId, firstName, lastName} = req.userData;
         const userTrainingDays = await Workout.find({userId: userId});
         
         // check if training date already exists
         const trainingDateExists = userTrainingDays.some((training)=>{
             return training.date === req.body.date;
         })
+
+        /*  */
+        let idForContentFeed; // depending on if its new training day or existing
+        /*  */
 
         // if no workout exists in db or trainings date dosent exists, create new training day
         if(!userTrainingDays.length || !trainingDateExists) {
@@ -27,6 +32,7 @@ const saveTrainingSession = async (req, res, next) => {
                 ]
             });
             await newTrainingDay.save();
+            idForContentFeed = String(newTrainingDay._id);
         } else {
             // IF TRAINING DAY ALREADY EXISTS, ADD WORKOUT SESSION TO IT
             const existingTrainingDate = await Workout.findOne({date: req.body.date});
@@ -37,8 +43,26 @@ const saveTrainingSession = async (req, res, next) => {
                         workouts: req.body.workouts
                 });
                 await existingTrainingDate.save();
+                idForContentFeed = String(existingTrainingDate._id);
             }
         }
+
+        const contentFeedWorkout = new ContentFeed({
+            type: "workout",
+            author: {
+                id: userId,
+                firstName,
+                lastName
+            },
+            date: req.body.date,
+            private: false,
+            content: {
+                workoutDayId: idForContentFeed,
+                title: req.body.title,
+                workouts: req.body.workouts
+            }
+        });
+        await contentFeedWorkout.save();
         
         res.json({message: "Success on saving new training day."});
     } catch(e) {

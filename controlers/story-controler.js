@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Story = require("../models/Story");
+const ContentFeed = require("../models/ContentFeed");
 const HttpError = require("../errors/HttpError");
 const fs = require("fs");
 const getStorieStats = require("../helpers/stories/getStorieStats");
@@ -26,6 +27,28 @@ const postStory = async (req, res, next) => {
                 date: new Date()
             })
             await newStory.save();
+
+
+            // ADD STORY TO CONTENT FEED
+            const contentFeedStory = new ContentFeed({
+                type: "story",
+                author: {
+                    id: userId,
+                    firstName,
+                    lastName 
+                },
+                date: newStory.date,
+                private: newStory.private,
+                content: {
+                    storyId: String(newStory._id),
+                    title: req.body.title,
+                    story: req.body.story.slice(0, 80),
+                    image: req.file && req.file.path || undefined
+                }
+            });
+            await contentFeedStory.save();
+
+
             res.json({message: "Success on posting a story!"})
         } catch(e) {
             const error = new HttpError("Failed to post story.", 400);
