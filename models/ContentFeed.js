@@ -7,6 +7,7 @@ const contentFeedSchema = new Schema({
         id: {type: String, required: true},
         firstName: {type: String, required: true},
         lastName: {type: String, required: true},
+        photo: {type: String}
     },
     date: {type: String, required: true},
     private: {type: Boolean, required: true},

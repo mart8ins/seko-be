@@ -1,4 +1,5 @@
 const HttpError = require("../errors/HttpError");
+const User = require("../models/User");
 const Workout = require("../models/Workout");
 const ContentFeed = require("../models/ContentFeed");
 const getWorkoutStats = require("../helpers/stories/getWorkoutStats");
@@ -8,6 +9,9 @@ const saveTrainingSession = async (req, res, next) => {
     try {
         const {userId, firstName, lastName} = req.userData;
         const userTrainingDays = await Workout.find({userId: userId});
+
+        const user = await User.findOne({_id: userId}).select("-password");
+        const userPhoto = user.photo.profile || undefined;
         
         // check if training date already exists
         const trainingDateExists = userTrainingDays.some((training)=>{
@@ -52,7 +56,8 @@ const saveTrainingSession = async (req, res, next) => {
             author: {
                 id: userId,
                 firstName,
-                lastName
+                lastName,
+                photo: userPhoto
             },
             date: req.body.date,
             private: false,

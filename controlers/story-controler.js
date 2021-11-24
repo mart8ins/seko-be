@@ -12,6 +12,10 @@ const postStory = async (req, res, next) => {
         try {
             const {userId, firstName, lastName} = req.userData;
             const user = await User.findOne({_id: userId}).select("-password");
+
+            const userPhoto = user.photo.profile || undefined;
+            console.log(userPhoto)
+
             const newStory = new Story({
                 title: req.body.title,
                 story: req.body.story,
@@ -22,7 +26,7 @@ const postStory = async (req, res, next) => {
                     userId: userId,
                     firstName: firstName,
                     lastName: lastName,
-                    photo: user.photo.profile
+                    photo: userPhoto
                 },
                 date: new Date()
             })
@@ -35,14 +39,15 @@ const postStory = async (req, res, next) => {
                 author: {
                     id: userId,
                     firstName,
-                    lastName 
+                    lastName,
+                    photo: userPhoto
                 },
                 date: newStory.date,
                 private: newStory.private,
                 content: {
                     storyId: String(newStory._id),
                     title: req.body.title,
-                    story: req.body.story.slice(0, 80),
+                    story: req.body.story.slice(0, 180),
                     image: req.file && req.file.path || undefined
                 }
             });
