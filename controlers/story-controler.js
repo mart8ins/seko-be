@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Story = require("../models/Story");
 const ContentFeed = require("../models/ContentFeed");
+const ActivityFeed = require("../models/ActivityFeed");
 const HttpError = require("../errors/HttpError");
 const fs = require("fs");
 const getStorieStats = require("../helpers/stories/getStorieStats");
@@ -96,7 +97,7 @@ const postStory = async (req, res, next) => {
 // POST A RATE FOR STORY
 const rateStory = async (req, res, next) => {
     const {storyId, rate} = req.body;
-    const {userId} = req.userData;
+    const {userId, firstName, lastName} = req.userData;
     try {
         const story = await Story.findOne({_id: storyId});
         const alreadyRated = story.rating.some((r)=> {
@@ -109,7 +110,28 @@ const rateStory = async (req, res, next) => {
             })
         }
         await story.save();
-        
+
+        const allAuthorStories = await Story.find({"author.userId": story.author.userId })
+        const stats = getStorieStats(allAuthorStories);
+        const avaragaStat = stats.filter((st)=> {
+            return st.title === "Avarage rate for stories";
+        })
+
+        const newActivity = new ActivityFeed({
+            type: "rate",
+            fromUser: firstName + " " + lastName,
+            toUser: story.author.firstName + " " + story.author.lastName,
+            story: story.story,
+            storyId: storyId,
+            data: {
+                comment: undefined,
+                givenRate: rate,
+                storiesAvarageRate: avaragaStat[0].stat
+            },
+            date: new Date()
+        })
+        await newActivity.save();
+    
         res.json({message: "Success on rating a story!"})
     } catch(e) {
         const error = new HttpError("Failed to rate a story.", 400);
@@ -184,6 +206,8 @@ const getUserStory = async (req, res ,next) => {
 // POST A COMMENT FOR STORY
 const postCommentForStory = async (req, res ,next) => {
     try {
+        // const {userId, firstName, lastName} = req.userData;
+
         const {comment, fullName, userId, commented_story} = req.body.comment;
         const story = await Story.findOne({_id: commented_story});
         story.comments.push({
@@ -195,6 +219,22 @@ const postCommentForStory = async (req, res ,next) => {
             date: new Date()
         });
         await story.save();
+
+        const newActivity = new ActivityFeed({
+            type: "comment",
+            fromUser: fullName,
+            toUser: story.author.firstName + " " + story.author.lastName,
+            story: story.story,
+            storyId: commented_story,
+            data: {
+                comment: comment,
+                givenRate: undefined,
+                storiesAvarageRate: undefined
+            },
+            date: new Date()
+        })
+        await newActivity.save();
+
         res.json({message: "Success on posting a comment for story."})
     }catch(e) {
         const error = new HttpError("Failed to post comment for story.", 400);
