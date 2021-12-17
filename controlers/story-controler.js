@@ -121,7 +121,7 @@ const rateStory = async (req, res, next) => {
             type: "rate",
             fromUser: firstName + " " + lastName,
             toUser: story.author.firstName + " " + story.author.lastName,
-            story: story.story,
+            story: story.title,
             storyId: storyId,
             data: {
                 comment: undefined,
@@ -224,7 +224,7 @@ const postCommentForStory = async (req, res ,next) => {
             type: "comment",
             fromUser: fullName,
             toUser: story.author.firstName + " " + story.author.lastName,
-            story: story.story,
+            story: story.title,
             storyId: commented_story,
             data: {
                 comment: comment,
