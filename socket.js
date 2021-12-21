@@ -82,7 +82,7 @@ function socketIo(){
                 users.splice(index, 1);
                 cb(users);
                 currentUsersOnline--;
-                console.log(currentUsersOnline, "currentUsersOnline")
+                console.log(currentUsersOnline, "currentUsersOnline");
             })
 
         /* ****************************************************************************************************** */
