@@ -15,7 +15,6 @@ const postStory = async (req, res, next) => {
             const user = await User.findOne({_id: userId}).select("-password");
 
             const userPhoto = user.photo.profile || undefined;
-            console.log(userPhoto)
 
             const newStory = new Story({
                 title: req.body.title,

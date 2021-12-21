@@ -4,6 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 
 // socket users register
 const users = [];
+let currentUsersOnline = 0;
+let trackOfUsersOnline = 0;
 let newUser;
 
 // keep track of user rooms
@@ -52,13 +54,35 @@ function socketIo(){
                 };
                 }
                 cb(users);
+                currentUsersOnline++;
+                console.log(currentUsersOnline, "currentUsersOnline")
             });
+
+            // SEND UPDATE ABOUT USERS ONLINE TO ONLINE USERS COMPONENT
+            setInterval(()=> {
+                console.log("Īntervāls")
+                console.log(users.length, "users.length")
+                console.log(currentUsersOnline, "currentUsersOnline")
+                console.log(trackOfUsersOnline, "trackOfUsersOnline")
+                if(users.length !== 0 && currentUsersOnline !== trackOfUsersOnline) {
+                    console.log("emiteeee")
+                    socket.emit("SEND UPDATE ON USERS ONLINE", users);
+                }
+            }, 5000);
+            // TO TRACK CHANGES
+            socket.on("USERS ONLINE UPDATED", () => {
+                trackOfUsersOnline = currentUsersOnline; 
+            })
+
+
         /* REMOVE USER FROM SOCKETID ARRAY */
         socket.on("USER IS OFFLINE", (user, cb)=> {
                 const userId = user.userId;
                 const index = users.findIndex((user) => user.userId === userId);
                 users.splice(index, 1);
                 cb(users);
+                currentUsersOnline--;
+                console.log(currentUsersOnline, "currentUsersOnline")
             })
 
         /* ****************************************************************************************************** */
