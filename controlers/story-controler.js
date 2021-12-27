@@ -145,7 +145,13 @@ const deleteStory = async (req, res, next) => {
         const storyToDelete = await Story.findOneAndDelete({_id: storyId});
         const imagePathToDelete = storyToDelete.image;
         // delete story background image after story is deleted
-        fs.unlinkSync(imagePathToDelete);
+        if(imagePathToDelete) {
+            fs.unlinkSync(imagePathToDelete);
+        }
+
+        // delete story from content feed
+        const storyFromContentFeedToDelete = await ContentFeed.findOneAndDelete({"content.storyId": storyId});
+        const storyFromActivityFeedToDelete = await ActivityFeed.deleteMany({"storyId": storyId});
 
         res.json({message: "Success on deleteing story"});
     } catch(e) {
