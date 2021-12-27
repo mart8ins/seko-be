@@ -52,9 +52,9 @@ const addProfilePhoto = async (req, res, next) => {
         const user = await User.findOne({_id: req.userData.userId});
 
         // delete existing image from server if it exists
-        // if(user.photo.profile) {
-        //     fs.unlinkSync(user.photo.profile);
-        // }
+        if(user.photo.profile) {
+            fs.unlinkSync(user.photo.profile);
+        }
 
         if(req.file && req.file.path) {
             user.photo.profile = req.file.path;
