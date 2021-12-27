@@ -1,13 +1,13 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for my CV app",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon start"
+    "start": "node start"
   },
-  "author": "",
+  "author": "Martins Meisters",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
