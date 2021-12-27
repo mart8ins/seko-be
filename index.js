@@ -20,13 +20,12 @@ app.use(express.urlencoded({extended: true}), express.json());
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use(cors());
 app.use(session({
-    secret: 'keyboard cat',
-    store: MongoStore.create({mongoUrl: "mongodb://localhost:27017/seko"}),
+    secret: `${process.env.SESSION_SECRET}`,
+    store: MongoStore.create({mongoUrl: `mongodb+srv://${process.env.DB_USER}:${process.env.DB_USER_PASSWORD}@cv.clznt.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`}),
     resave: false,
     saveUninitialized: true,
     cookie: { secure: true }
 }))
-
 
 // setting response headers
 app.use((req, res, next)=> {
@@ -72,7 +71,7 @@ app.use((error, req, res, next)=> {
 })
 
 
-mongoose.connect('mongodb://localhost:27017/seko', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false})
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_USER_PASSWORD}@cv.clznt.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false})
 .then( ()=> {
     httpServer.listen(port, ()=> {
         console.log("App startet on port " + port)
