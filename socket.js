@@ -82,6 +82,9 @@ function socketIo(){
                 users.splice(index, 1);
                 cb(users);
                 currentUsersOnline--;
+                if(users.length === 0) {
+                    trackOfUsersOnline = 0;
+                }
                 console.log(currentUsersOnline, "currentUsersOnline");
             })
 
