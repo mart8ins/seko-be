@@ -1,6 +1,5 @@
 require('dotenv').config();
-const fs = require("fs");
-const path = require("path");
+// const path = require("path");
 
 
 const express = require("express");
@@ -17,7 +16,7 @@ const MongoStore = require('connect-mongo');
 const HttpError = require("./errors/HttpError");
 
 app.use(express.urlencoded({extended: true}), express.json());
-app.use("/uploads/images", express.static(path.join("uploads", "images")));
+// app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use(cors());
 app.use(session({
     secret: `${process.env.SESSION_SECRET}`,
@@ -58,11 +57,6 @@ app.use((req, res, next)=> {
 })
 
 app.use((error, req, res, next)=> {
-        if(req.file) { // dont save image/file if some error occured
-            fs.unlink(req.file.path, (err)=> {
-                console.log(err)
-            })
-        }
         if (res.headersSent) {
             return next(error)
         }

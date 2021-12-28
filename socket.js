@@ -55,15 +55,15 @@ function socketIo(){
                 }
                 cb(users);
                 currentUsersOnline++;
-                console.log(currentUsersOnline, "currentUsersOnline")
+                // console.log(currentUsersOnline, "currentUsersOnline")
             });
 
             // SEND UPDATE ABOUT USERS ONLINE TO ONLINE USERS COMPONENT
             setInterval(()=> {
-                console.log("Īntervāls")
-                console.log(users.length, "users.length")
-                console.log(currentUsersOnline, "currentUsersOnline")
-                console.log(trackOfUsersOnline, "trackOfUsersOnline")
+                // console.log("Īntervāls")
+                // console.log(users.length, "users.length")
+                // console.log(currentUsersOnline, "currentUsersOnline")
+                // console.log(trackOfUsersOnline, "trackOfUsersOnline")
                 if(users.length !== 0 && currentUsersOnline !== trackOfUsersOnline) {
                     console.log("emiteeee")
                     socket.emit("SEND UPDATE ON USERS ONLINE", users);

@@ -2,7 +2,6 @@ const User = require("../models/User");
 const HttpError = require("../errors/HttpError");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const fs = require("fs");
 
 const changeProfileData = async (req, res, next) => {
     try {
@@ -51,15 +50,9 @@ const addProfilePhoto = async (req, res, next) => {
     try {
         const user = await User.findOne({_id: req.userData.userId});
 
-        // delete existing image from server if it exists
-        if(user.photo.profile) {
-            fs.unlinkSync(user.photo.profile);
+        if(req.body.data) {
+            user.photo.profile = req.body.data;
         }
-
-        if(req.file && req.file.path) {
-            user.photo.profile = req.file.path;
-        }
-        
         await user.save();
         res.json({message: "User profile photo stored.", photo: user.photo.profile})
     } catch (e) {
