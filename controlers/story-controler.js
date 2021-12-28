@@ -19,7 +19,7 @@ const postStory = async (req, res, next) => {
             const newStory = new Story({
                 title: req.body.title,
                 story: req.body.story,
-                image: req.file && req.file.path || undefined,
+                image: req.body.image || undefined,
                 comments_allowed: req.body.comments_allowed,
                 private: req.body.private,
                 author: {
@@ -48,7 +48,7 @@ const postStory = async (req, res, next) => {
                     storyId: String(newStory._id),
                     title: req.body.title,
                     story: req.body.story.slice(0, 180),
-                    image: req.file && req.file.path || undefined
+                    image: req.body.image || undefined
                 }
             });
             await contentFeedStory.save();
@@ -69,12 +69,16 @@ const postStory = async (req, res, next) => {
 
             storyToEdit.title = req.body.title;
             storyToEdit.story = req.body.story;
-            if(req.file && req.file.path) {
-                if(req.body.image_to_delete) {
-                    fs.unlinkSync(req.body.image_to_delete); // to delete old image from server if user chose new
-                }
-                storyToEdit.image =  req.file.path;
-            }
+            storyToEdit.image =  req.body.image;
+
+            // if(req.file && req.file.path) {
+            //     if(req.body.image_to_delete) {
+            //         fs.unlinkSync(req.body.image_to_delete); // to delete old image from server if user chose new
+            //     }
+            //     storyToEdit.image =  req.file.path;
+            // }
+
+
             storyToEdit.comments_allowed = req.body.comments_allowed;
             storyToEdit.private = req.body.private;
             storyToEdit.author = {
