@@ -3,7 +3,6 @@ const Story = require("../models/Story");
 const ContentFeed = require("../models/ContentFeed");
 const ActivityFeed = require("../models/ActivityFeed");
 const HttpError = require("../errors/HttpError");
-const fs = require("fs");
 const getStorieStats = require("../helpers/stories/getStorieStats");
 
 
@@ -70,14 +69,6 @@ const postStory = async (req, res, next) => {
             storyToEdit.title = req.body.title;
             storyToEdit.story = req.body.story;
             storyToEdit.image =  req.body.image;
-
-            // if(req.file && req.file.path) {
-            //     if(req.body.image_to_delete) {
-            //         fs.unlinkSync(req.body.image_to_delete); // to delete old image from server if user chose new
-            //     }
-            //     storyToEdit.image =  req.file.path;
-            // }
-
 
             storyToEdit.comments_allowed = req.body.comments_allowed;
             storyToEdit.private = req.body.private;
@@ -146,16 +137,11 @@ const rateStory = async (req, res, next) => {
 const deleteStory = async (req, res, next) => {
     const {storyId} = req.body;
     try {
-        const storyToDelete = await Story.findOneAndDelete({_id: storyId});
-        const imagePathToDelete = storyToDelete.image;
-        // delete story background image after story is deleted
-        if(imagePathToDelete) {
-            fs.unlinkSync(imagePathToDelete);
-        }
+        await Story.findOneAndDelete({_id: storyId});
 
         // delete story from content feed
-        const storyFromContentFeedToDelete = await ContentFeed.findOneAndDelete({"content.storyId": storyId});
-        const storyFromActivityFeedToDelete = await ActivityFeed.deleteMany({"storyId": storyId});
+        await ContentFeed.findOneAndDelete({"content.storyId": storyId});
+        await ActivityFeed.deleteMany({"storyId": storyId});
 
         res.json({message: "Success on deleteing story"});
     } catch(e) {
